@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Scroll behavior personalizado */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  /* Evitar zoom en inputs en iOS */
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scroll snap solo para las secciones específicas */
+.snap-y {
+  scroll-snap-type: y mandatory;
+}
+
+.snap-start {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Optimizaciones para móvil */
+@media (max-width: 768px) {
+  /* Altura mínima específica para móvil */
+  .min-h-screen {
+    min-height: 100dvh; /* Dynamic viewport height para móviles */
+  }
+  
+  /* Mejor tap targets en móvil */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Scroll más suave en iOS */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Padding adicional para elementos en móvil */
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Texto más legible en pantallas pequeñas */
+  .mobile-text {
+    line-height: 1.6;
+  }
+}
+
+/* Altura específica para iPhone 12 y similares */
+@media screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
+}
+
+/* Altura para iPhone 13, 14, 15 */
+@media screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
+}
+
+/* Altura para iPhone 13/14/15 Pro */
+@media screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
+}
+
+/* Altura para iPhone 13/14/15 Pro Max */
+@media screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
+}
+
+/* Samsung Galaxy S21/S22/S23 */
+@media screen and (device-width: 384px) and (device-height: 854px) and (-webkit-device-pixel-ratio: 2.75) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
+}
+
+/* Google Pixel 6/7 */
+@media screen and (device-width: 412px) and (device-height: 915px) and (-webkit-device-pixel-ratio: 2.625) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
+}
+
+/* Dispositivos muy pequeños (iPhone SE, etc.) */
+@media (max-width: 375px) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
+  
+  /* Texto más pequeño en dispositivos muy pequeños */
+  .text-6xl {
+    font-size: 3rem !important;
+  }
+  
+  .text-5xl {
+    font-size: 2.5rem !important;
+  }
+  
+  .text-4xl {
+    font-size: 2rem !important;
+  }
+}
+
+/* Dispositivos grandes (tablets) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
+}
+
+/* Animación personalizada para scroll indicators */
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(-5px);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s infinite;
+}
+
+/* Scroll bar personalizado para webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+/* Desactivar scroll bar en móvil */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
+/* Mejoras específicas para inputs en móvil */
+@media (max-width: 768px) {
+  input[type="text"], input[type="password"], textarea {
+    font-size: 16px; /* Evitar zoom en iOS */
+    border-radius: 12px;
+  }
+}
+
+/* Efectos hover solo en dispositivos que los soportan */
+@media (hover: hover) {
+  .hover\:bg-white:hover {
+    background-color: white;
+  }
+  
+  .hover\:bg-gray-50:hover {
+    background-color: rgb(249 250 251);
+  }
+  
+  .hover\:bg-indigo-700:hover {
+    background-color: rgb(67 56 202);
+  }
+  
+  .hover\:text-gray-600:hover {
+    color: rgb(75 85 99);
+  }
+  
+  .hover\:text-indigo-500:hover {
+    color: rgb(99 102 241);
+  }
+}
