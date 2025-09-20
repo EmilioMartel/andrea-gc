@@ -106,6 +106,16 @@ const BONUS_DEFAULT = [
 // ---------- Helpers ----------
 const KEY_CHECKS = "md_checklist_checks_v1";
 const KEY_BONUS = "md_checklist_bonus_v1";
+const KEY_TODAY_PLAN = "md_today_plan_v1";
+
+// Tipos para el plan de hoy
+interface TodayPlanItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  source: string; // "plan" | "bonus" | "custom"
+  addedAt: string;
+}
 
 // Hook para scroll suave automático
 function useSmoothScroll(unlocked: boolean) {
@@ -700,6 +710,282 @@ const SecretPlan: React.FC<{
   );
 };
 
+const TodayPlan: React.FC<{
+  todayPlan: TodayPlanItem[];
+  setTodayPlan: (v: TodayPlanItem[]) => void;
+  allPlanItems: { text: string; fullId: string }[];
+  bonusItems: string[];
+  checks: Record<string, boolean>;
+  setChecks: (v: Record<string, boolean>) => void;
+}> = ({ todayPlan, setTodayPlan, allPlanItems, bonusItems, checks, setChecks }) => {
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [newCustomItem, setNewCustomItem] = useState("");
+  const [showAllPlans, setShowAllPlans] = useState(false);
+
+  // Filtrar los items según la opción seleccionada
+  const availableItems = useMemo(() => {
+    const allItems = [...allPlanItems.map(item => ({ ...item, source: 'plan' as const })), ...bonusItems.map(item => ({ text: item, fullId: item, source: 'bonus' as const }))];
+    
+    if (showAllPlans) {
+      return allItems; // Mostrar todos
+    }
+    
+    return allItems.filter(item => {
+      const id = slugify(item.fullId);
+      return !checks[id]; // Solo mostrar si NO está marcado
+    });
+  }, [allPlanItems, bonusItems, checks, showAllPlans]);
+
+  const handleDragStart = (e: React.DragEvent, item: string) => {
+    setDraggedItem(item);
+    e.dataTransfer.effectAllowed = "copy";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (draggedItem) {
+      // Buscar el item completo para determinar el source correcto
+      const planItem = allPlanItems.find(item => item.text === draggedItem);
+      const source = planItem ? "plan" : bonusItems.includes(draggedItem) ? "bonus" : "plan";
+      addItemToToday(draggedItem, source);
+      setDraggedItem(null);
+    }
+  };
+
+  const addItemToToday = (text: string, source: "plan" | "bonus" | "custom") => {
+    // Verificar si ya está en el plan de hoy
+    if (todayPlan.some(item => item.text === text)) {
+      return;
+    }
+
+    const newItem: TodayPlanItem = {
+      id: Date.now().toString(),
+      text,
+      completed: false,
+      source,
+      addedAt: new Date().toISOString()
+    };
+
+    setTodayPlan([...todayPlan, newItem]);
+  };
+
+  const toggleTodayItem = (id: string) => {
+    // Encontrar el item y actualizar su estado
+    const item = todayPlan.find(item => item.id === id);
+    if (!item) return;
+    
+    // Actualizar el plan de hoy
+    setTodayPlan(todayPlan.map(item => 
+      item.id === id ? { ...item, completed: !item.completed } : item
+    ));
+    
+    // Si no es un item personalizado, también actualizar el plan principal
+    if (item.source !== 'custom') {
+      let planId: string;
+      if (item.source === 'plan') {
+        // Buscar el item completo en allPlanItems para obtener el fullId
+        const planItem = allPlanItems.find(planItem => planItem.text === item.text);
+        planId = planItem ? slugify(planItem.fullId) : slugify(item.text);
+      } else {
+        // Para bonus items, usar solo el texto
+        planId = slugify(item.text);
+      }
+      setChecks({ ...checks, [planId]: !item.completed });
+    }
+  };
+
+  const removeFromToday = (id: string) => {
+    setTodayPlan(todayPlan.filter(item => item.id !== id));
+  };
+
+  const addCustomItem = () => {
+    const text = newCustomItem.trim();
+    if (!text) return;
+    addItemToToday(text, "custom");
+    setNewCustomItem("");
+  };
+
+  const clearTodayPlan = () => {
+    if (confirm("¿Seguro que quieres limpiar el plan de hoy?")) {
+      setTodayPlan([]);
+    }
+  };
+
+  return (
+    <section id="today-plan" className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <h3 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-extrabold text-blue-900">
+            🗓️ Plan para Hoy
+          </h3>
+          <p className="mt-2 text-gray-600 text-sm sm:text-base">
+            Arrastra los planes pendientes aquí para organizarte el día de hoy
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Panel izquierdo: Planes disponibles */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-lg font-semibold text-gray-800">📋 Planes Disponibles</h4>
+              <button
+                onClick={() => setShowAllPlans(!showAllPlans)}
+                className="text-xs px-3 py-1 rounded-full border bg-white hover:bg-gray-50 transition-colors touch-manipulation"
+              >
+                {showAllPlans ? "Solo pendientes" : "Ver todos"}
+              </button>
+            </div>
+            
+            {availableItems.length === 0 && !showAllPlans ? (
+              <div className="p-6 bg-white rounded-xl border text-center">
+                <p className="text-gray-500 mb-3">🎉 ¡Has completado todos los planes!</p>
+                <button
+                  onClick={() => setShowAllPlans(true)}
+                  className="text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 touch-manipulation"
+                >
+                  Ver todos los planes
+                </button>
+              </div>
+            ) : (
+              <div className="max-h-96 overflow-y-auto space-y-2 p-4 bg-white rounded-xl border">
+                {availableItems.map((item, index) => {
+                  const isCompleted = checks[slugify(item.fullId)];
+                  return (
+                    <div
+                      key={index}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, item.text)}
+                      className={`p-3 rounded-lg border cursor-move hover:bg-gray-100 transition-colors touch-manipulation ${
+                        isCompleted ? 'bg-green-50 border-green-200' : 'bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-400">⋮⋮</span>
+                        <span className={`text-sm ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+                          {item.text}
+                        </span>
+                        {isCompleted && <span className="text-green-500 text-xs">✓</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Agregar plan personalizado */}
+            <div className="space-y-2">
+              <h5 className="font-medium text-gray-700">✨ Crear plan personalizado</h5>
+              <div className="flex gap-2">
+                <input
+                  value={newCustomItem}
+                  onChange={(e) => setNewCustomItem(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addCustomItem()}
+                  placeholder="Ej: Desayuno especial en..."
+                  className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm touch-manipulation"
+                />
+                <button
+                  onClick={addCustomItem}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 touch-manipulation"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Panel derecho: Plan de hoy */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-lg font-semibold text-gray-800">🎯 Tu Plan de Hoy</h4>
+              {todayPlan.length > 0 && (
+                <button
+                  onClick={clearTodayPlan}
+                  className="text-sm text-red-500 hover:text-red-700 touch-manipulation"
+                >
+                  Limpiar todo
+                </button>
+              )}
+            </div>
+            
+            <div
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              className={`min-h-96 p-6 bg-white rounded-xl border-2 border-dashed transition-colors ${
+                draggedItem ? 'border-blue-300 bg-blue-50' : 'border-gray-200'
+              }`}
+            >
+              {todayPlan.length === 0 ? (
+                <div className="text-center text-gray-400 py-12">
+                  <p className="text-lg">📥</p>
+                  <p className="mt-2">Arrastra planes aquí o crea uno personalizado</p>
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {todayPlan.map((item) => (
+                    <li key={item.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <button
+                        onClick={() => toggleTodayItem(item.id)}
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors touch-manipulation ${
+                          item.completed
+                            ? "bg-green-500 border-green-500 text-white"
+                            : "border-gray-300 hover:border-green-400"
+                        }`}
+                      >
+                        {item.completed ? "✓" : ""}
+                      </button>
+                      <div className="flex-1">
+                        <span className={`text-sm ${item.completed ? "line-through text-gray-500" : ""}`}>
+                          {item.text}
+                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-xs px-2 py-1 rounded ${
+                            item.source === 'plan' ? 'bg-blue-100 text-blue-700' :
+                            item.source === 'bonus' ? 'bg-amber-100 text-amber-700' :
+                            'bg-purple-100 text-purple-700'
+                          }`}>
+                            {item.source === 'plan' ? '📅 Plan' : 
+                             item.source === 'bonus' ? '⭐ Extra' : '✨ Personalizado'}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => removeFromToday(item.id)}
+                        className="text-red-400 hover:text-red-600 p-1 touch-manipulation"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Estadísticas del día */}
+            {todayPlan.length > 0 && (
+              <div className="p-4 bg-white rounded-lg border">
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">Progreso del día:</span> {todayPlan.filter(item => item.completed).length} de {todayPlan.length} completados
+                </div>
+                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-green-500 h-2 rounded-full transition-all"
+                    style={{ width: `${todayPlan.length > 0 ? (todayPlan.filter(item => item.completed).length / todayPlan.length) * 100 : 0}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export default function App() {
   const q = useMemo(
     () => [
@@ -732,11 +1018,12 @@ export default function App() {
   // Inicializar siempre como false para evitar spoilers al recargar
   const [unlocked, setUnlocked] = useState<boolean>(false);
   const [bonus, setBonus, bonusLoading] = useSyncedData<string[]>(KEY_BONUS, BONUS_DEFAULT, true); // Firebase habilitado
+  const [todayPlan, setTodayPlan, todayPlanLoading] = useSyncedData<TodayPlanItem[]>(KEY_TODAY_PLAN, [], true); // Firebase habilitado
 
   // Hook para scroll suave automático (pasa el estado unlocked)
   useSmoothScroll(unlocked);
 
-  const isDataLoading = checksLoading || bonusLoading;
+  const isDataLoading = checksLoading || bonusLoading || todayPlanLoading;
 
   useEffect(() => {
     // Asegurar que siempre empecemos desde el principio al cargar la página
@@ -747,6 +1034,22 @@ export default function App() {
     // Guardar checks/bonus ya lo gestiona useLocalStorage
     // unlocked no se guarda intencionalmente para evitar spoilers
   }, [checks, bonus]);
+
+  // Extraer todos los items del plan para el componente TodayPlan
+  const allPlanItems = useMemo(() => {
+    const items: { text: string; fullId: string }[] = [];
+    PLAN_DATA.forEach(month => {
+      month.weeks.forEach(week => {
+        week.items.forEach(item => {
+          items.push({
+            text: item,
+            fullId: `${month.month}-${week.title}-${item}`
+          });
+        });
+      });
+    });
+    return items;
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-amber-50 to-indigo-50 text-gray-900">
@@ -827,12 +1130,22 @@ export default function App() {
 
       {/* Plan secreto (solo visible si unlocked) */}
       {unlocked && (
-        <SecretPlan
-          checks={checks}
-          setChecks={setChecks}
-          bonus={bonus}
-          setBonus={setBonus}
-        />
+        <>
+          <SecretPlan
+            checks={checks}
+            setChecks={setChecks}
+            bonus={bonus}
+            setBonus={setBonus}
+          />
+          <TodayPlan
+            todayPlan={todayPlan}
+            setTodayPlan={setTodayPlan}
+            allPlanItems={allPlanItems}
+            bonusItems={bonus}
+            checks={checks}
+            setChecks={setChecks}
+          />
+        </>
       )}
 
       {/* Footer */}

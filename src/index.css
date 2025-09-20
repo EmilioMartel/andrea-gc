@@ -190,6 +190,23 @@ body {
     font-size: 16px; /* Evitar zoom en iOS */
     border-radius: 12px;
   }
+  
+  /* Mejorar drag and drop en dispositivos táctiles */
+  [draggable="true"] {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+  }
+  
+  /* Feedback visual para elementos arrastrables */
+  .cursor-move {
+    cursor: grab;
+  }
+  
+  .cursor-move:active {
+    cursor: grabbing;
+  }
 }
 
 /* Efectos hover solo en dispositivos que los soportan */
