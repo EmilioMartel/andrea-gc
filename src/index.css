@@ -207,6 +207,17 @@ body {
   .cursor-move:active {
     cursor: grabbing;
   }
+  
+  /* Mejorar drag and drop para macOS y otros sistemas */
+  [draggable="true"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  [draggable="true"]:active {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
 }
 
 /* Efectos hover solo en dispositivos que los soportan */

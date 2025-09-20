@@ -718,7 +718,7 @@ const TodayPlan: React.FC<{
   checks: Record<string, boolean>;
   setChecks: (v: Record<string, boolean>) => void;
 }> = ({ todayPlan, setTodayPlan, allPlanItems, bonusItems, checks, setChecks }) => {
-  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [draggedItem, setDraggedItem] = useState<{ text: string; source: 'plan' | 'bonus' } | null>(null);
   const [newCustomItem, setNewCustomItem] = useState("");
   const [showAllPlans, setShowAllPlans] = useState(false);
 
@@ -730,15 +730,23 @@ const TodayPlan: React.FC<{
       return allItems; // Mostrar todos
     }
     
+    // Obtener IDs de items que ya están en el plan de hoy
+    const todayPlanIds = todayPlan.map(item => item.id);
+    
     return allItems.filter(item => {
-      const id = slugify(item.fullId);
-      return !checks[id]; // Solo mostrar si NO está marcado
+      const itemId = slugify(item.fullId);
+      return !checks[itemId] && !todayPlanIds.includes(itemId); // Solo mostrar si NO está marcado Y NO está en plan de hoy
     });
-  }, [allPlanItems, bonusItems, checks, showAllPlans]);
+  }, [allPlanItems, bonusItems, checks, showAllPlans, todayPlan]);
 
-  const handleDragStart = (e: React.DragEvent, item: string) => {
-    setDraggedItem(item);
+  const handleDragStart = (e: React.DragEvent, text: string, source: 'plan' | 'bonus') => {
+    setDraggedItem({ text, source });
     e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData('text/plain', JSON.stringify({ text, source }));
+  };
+
+  const handleItemClick = (text: string, source: 'plan' | 'bonus') => {
+    addItemToToday(text, source);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -748,23 +756,43 @@ const TodayPlan: React.FC<{
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    if (draggedItem) {
-      // Buscar el item completo para determinar el source correcto
-      const planItem = allPlanItems.find(item => item.text === draggedItem);
-      const source = planItem ? "plan" : bonusItems.includes(draggedItem) ? "bonus" : "plan";
-      addItemToToday(draggedItem, source);
-      setDraggedItem(null);
+    e.stopPropagation();
+    
+    // Usar dataTransfer para obtener los datos
+    try {
+      const dataStr = e.dataTransfer.getData('text/plain');
+      if (dataStr) {
+        const itemData = JSON.parse(dataStr);
+        if (itemData && itemData.text && itemData.source) {
+          addItemToToday(itemData.text, itemData.source);
+          setDraggedItem(null);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Error with dataTransfer:', err);
     }
+    
+    // Método de respaldo: usar estado
+    if (draggedItem && draggedItem.text && draggedItem.source) {
+      addItemToToday(draggedItem.text, draggedItem.source);
+    }
+    
+    setDraggedItem(null);
   };
 
   const addItemToToday = (text: string, source: "plan" | "bonus" | "custom") => {
+    // Crear un ID consistente con el usado en el filtro
+    const itemId = slugify(text);
+    
     // Verificar si ya está en el plan de hoy
-    if (todayPlan.some(item => item.text === text)) {
+    const existingItem = todayPlan.find(item => item.id === itemId);
+    if (existingItem) {
       return;
     }
 
     const newItem: TodayPlanItem = {
-      id: Date.now().toString(),
+      id: itemId,
       text,
       completed: false,
       source,
@@ -824,7 +852,7 @@ const TodayPlan: React.FC<{
             🗓️ Plan para Hoy
           </h3>
           <p className="mt-2 text-gray-600 text-sm sm:text-base">
-            Arrastra los planes pendientes aquí para organizarte el día de hoy
+            Arrastra los planes pendientes aquí para organizarte el día de hoy (o haz click para agregar)
           </p>
         </div>
 
@@ -859,10 +887,16 @@ const TodayPlan: React.FC<{
                     <div
                       key={index}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, item.text)}
+                      onDragStart={(e) => handleDragStart(e, item.text, item.source)}
+                      onDragEnd={() => {
+                        // Limpiar después de un breve delay para permitir que drop se procese
+                        setTimeout(() => setDraggedItem(null), 100);
+                      }}
+                      onClick={() => handleItemClick(item.text, item.source)}
                       className={`p-3 rounded-lg border cursor-move hover:bg-gray-100 transition-colors touch-manipulation ${
                         isCompleted ? 'bg-green-50 border-green-200' : 'bg-gray-50'
                       }`}
+                      title="Arrastra o haz click para agregar al plan de hoy"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-gray-400">⋮⋮</span>
@@ -870,6 +904,7 @@ const TodayPlan: React.FC<{
                           {item.text}
                         </span>
                         {isCompleted && <span className="text-green-500 text-xs">✓</span>}
+                        <span className="text-blue-500 text-xs ml-auto">+</span>
                       </div>
                     </div>
                   );
@@ -915,6 +950,8 @@ const TodayPlan: React.FC<{
             <div
               onDragOver={handleDragOver}
               onDrop={handleDrop}
+              onDragEnter={(e) => e.preventDefault()}
+              onDragLeave={(e) => e.preventDefault()}
               className={`min-h-96 p-6 bg-white rounded-xl border-2 border-dashed transition-colors ${
                 draggedItem ? 'border-blue-300 bg-blue-50' : 'border-gray-200'
               }`}
