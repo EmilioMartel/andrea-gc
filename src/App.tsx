@@ -18,7 +18,8 @@ import { useSyncedData } from "./useSyncedData";
  */
 
 const TITLE = "Operación: Planazos Épicos 🚀";
-const PASSWORD_PHRASE = "Idrio 2025 sin la I"; // <- Cambia la frase si quieres
+const PASSWORD_HINT = "Toc toc, ¿quién es?"; // <- Pista que se muestra
+const PASSWORD_PHRASE = "ding dong"; // <- Contraseña real para desbloquear
 const GOOGLE_DOC_URL = "https://docs.google.com/document/d/15kjoUrcE2n28rG1LSsyCquiviLovyC1uopzlBoPYj34/edit?usp=sharing"; // Pega aquí tu enlace de Google Docs si lo tienes
 
 // ---------- Datos del plan (2 meses + extras) ----------
@@ -494,7 +495,7 @@ const PasswordGate: React.FC<{
       setError("");
       onUnlock();
     } else {
-      setError("Ups, esa no es la frase. Fíjate bien en la que está arriba ✨");
+      setError("¿Quién llama a la puerta? Piensa en el sonido... 🔔");
       inputRef.current?.focus();
     }
   }
@@ -502,20 +503,20 @@ const PasswordGate: React.FC<{
   return (
     <section id="password" className="min-h-[80vh] py-12 sm:py-20 px-4 sm:px-6 bg-white/70 backdrop-blur">
       <div className="max-w-3xl mx-auto text-center">
-        <h3 className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">Contraseña del plan</h3>
+        <h3 className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">El acertijo final</h3>
         <p className="mt-3 text-gray-600 text-sm sm:text-base px-2">
-          Has llegado hasta el final. Si recuerdas la frase clave, podrás desbloquear el plan secreto.
+          Has llegado hasta el final. Resuelve la pista para desbloquear el plan secreto.
         </p>
         <p className="mt-2 text-gray-500 text-xs sm:text-sm px-2">
           💡 El plan se oculta automáticamente al recargar la página para evitar spoilers 👀
         </p>
 
         <div className="mt-6 sm:mt-8 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-50 to-indigo-50 border">
-          <p className="text-xs sm:text-sm uppercase tracking-widest text-gray-500">Frase clave</p>
+          <p className="text-xs sm:text-sm uppercase tracking-widest text-gray-500">Pista</p>
           <p className="mt-2 text-lg sm:text-2xl md:text-3xl font-extrabold select-all leading-tight">
-            "{PASSWORD_PHRASE}"
+            "{PASSWORD_HINT}"
           </p>
-          <p className="mt-2 text-gray-500 text-xs sm:text-sm">(Escríbela tal cual o sin tildes/insensible a mayúsculas)</p>
+          <p className="mt-2 text-gray-500 text-xs sm:text-sm">(Piensa en la respuesta a esta pregunta 🤔)</p>
         </div>
 
         <div className="mt-6 sm:mt-8 flex flex-col gap-3 justify-center">
@@ -524,7 +525,7 @@ const PasswordGate: React.FC<{
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && tryUnlock()}
-            placeholder="Escribe aquí la frase clave"
+            placeholder="Escribe la respuesta a la pista..."
             className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-4 focus:ring-indigo-200 text-sm sm:text-base touch-manipulation"
           />
           <button
