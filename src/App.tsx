@@ -807,9 +807,12 @@ const TodayPlan: React.FC<{
     const item = todayPlan.find(item => item.id === id);
     if (!item) return;
     
+    // Calcular el nuevo estado de completado
+    const newCompletedState = !item.completed;
+    
     // Actualizar el plan de hoy
     setTodayPlan(todayPlan.map(item => 
-      item.id === id ? { ...item, completed: !item.completed } : item
+      item.id === id ? { ...item, completed: newCompletedState } : item
     ));
     
     // Si no es un item personalizado, también actualizar el plan principal
@@ -819,11 +822,14 @@ const TodayPlan: React.FC<{
         // Buscar el item completo en allPlanItems para obtener el fullId
         const planItem = allPlanItems.find(planItem => planItem.text === item.text);
         planId = planItem ? slugify(planItem.fullId) : slugify(item.text);
+      } else if (item.source === 'bonus') {
+        // Para bonus items, usar el mismo formato que en la sección principal
+        planId = slugify(`bonus-${item.text}`);
       } else {
-        // Para bonus items, usar solo el texto
+        // Fallback para otros casos
         planId = slugify(item.text);
       }
-      setChecks({ ...checks, [planId]: !item.completed });
+      setChecks({ ...checks, [planId]: newCompletedState });
     }
   };
 
