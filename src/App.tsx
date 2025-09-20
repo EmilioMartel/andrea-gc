@@ -107,9 +107,15 @@ const KEY_CHECKS = "md_checklist_checks_v1";
 const KEY_BONUS = "md_checklist_bonus_v1";
 
 // Hook para scroll suave automático
-function useSmoothScroll() {
+function useSmoothScroll(unlocked: boolean) {
   useEffect(() => {
+    // Si ya está desbloqueado, no interfierr con el scroll normal
+    if (unlocked) return;
+    
     let isScrolling = false;
+
+    // Detectar si estamos en macOS para mejor manejo
+    const isMacOS = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
     const handleWheel = (e: WheelEvent) => {
       // Detectar si estamos en la sección de contraseña o después
@@ -119,8 +125,11 @@ function useSmoothScroll() {
       const passwordTop = passwordSection.offsetTop;
       const currentScrollY = window.scrollY;
       
-      // Si ya pasamos la sección de contraseña, permitir scroll normal
-      if (currentScrollY >= passwordTop) {
+      // Umbral más preciso para detectar que ya pasamos la contraseña
+      const threshold = isMacOS ? 100 : 50; // Mayor umbral para macOS
+      
+      // Si ya pasamos la sección de contraseña con suficiente margen, permitir scroll normal
+      if (currentScrollY >= (passwordTop - threshold)) {
         return; // No interferir con el scroll natural
       }
       
@@ -140,14 +149,17 @@ function useSmoothScroll() {
       const currentSection = Math.round(currentScrollY / windowHeight);
       const totalSections = Math.ceil(documentHeight / windowHeight);
       
-      // Determinar dirección con menor sensibilidad
+      // Sensibilidad adaptada para macOS (trackpad más sensible)
+      const scrollThreshold = isMacOS ? 5 : 10;
+      
+      // Determinar dirección
       let targetSection: number;
-      if (e.deltaY > 10) { // Scroll hacia abajo (más sensible)
+      if (e.deltaY > scrollThreshold) { // Scroll hacia abajo
         targetSection = Math.min(currentSection + 1, totalSections - 1);
         
         // Si la próxima sección sería la de contraseña o después, ir directamente ahí
         const targetY = targetSection * windowHeight;
-        if (targetY >= passwordTop) {
+        if (targetY >= (passwordTop - threshold)) {
           window.scrollTo({
             top: passwordTop,
             behavior: 'smooth'
@@ -158,7 +170,7 @@ function useSmoothScroll() {
             behavior: 'smooth'
           });
         }
-      } else if (e.deltaY < -10) { // Scroll hacia arriba (más sensible)
+      } else if (e.deltaY < -scrollThreshold) { // Scroll hacia arriba
         targetSection = Math.max(currentSection - 1, 0);
         const targetY = targetSection * windowHeight;
         window.scrollTo({
@@ -177,6 +189,9 @@ function useSmoothScroll() {
     };
 
     const handleTouchStart = (e: TouchEvent) => {
+      // Solo para dispositivos táctiles, no trackpads de macOS
+      if (isMacOS) return;
+      
       // Detectar si estamos en la sección de contraseña o después
       const passwordSection = document.getElementById('password');
       if (!passwordSection) return;
@@ -185,7 +200,7 @@ function useSmoothScroll() {
       const currentScrollY = window.scrollY;
       
       // Si ya pasamos la sección de contraseña, permitir scroll normal
-      if (currentScrollY >= passwordTop) {
+      if (currentScrollY >= (passwordTop - 50)) {
         return;
       }
       
@@ -213,7 +228,7 @@ function useSmoothScroll() {
             
             // Si la próxima sección sería la de contraseña o después, ir directamente ahí
             const targetY = targetSection * windowHeight;
-            if (targetY >= passwordTop) {
+            if (targetY >= (passwordTop - 50)) {
               window.scrollTo({
                 top: passwordTop,
                 behavior: 'smooth'
@@ -254,13 +269,17 @@ function useSmoothScroll() {
 
     // Añadir listeners
     document.addEventListener('wheel', handleWheel, { passive: false });
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    if (!isMacOS) {
+      document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    }
     
     return () => {
       document.removeEventListener('wheel', handleWheel);
-      document.removeEventListener('touchstart', handleTouchStart);
+      if (!isMacOS) {
+        document.removeEventListener('touchstart', handleTouchStart);
+      }
     };
-  }, []);
+  }, [unlocked]); // Dependencia del estado unlocked
 }
 
 function slugify(s: string) {
@@ -681,9 +700,6 @@ const SecretPlan: React.FC<{
 };
 
 export default function App() {
-  // Hook para scroll suave automático
-  useSmoothScroll();
-  
   const q = useMemo(
     () => [
       {
@@ -715,6 +731,9 @@ export default function App() {
   // Inicializar siempre como false para evitar spoilers al recargar
   const [unlocked, setUnlocked] = useState<boolean>(false);
   const [bonus, setBonus, bonusLoading] = useSyncedData<string[]>(KEY_BONUS, BONUS_DEFAULT, true); // Firebase habilitado
+
+  // Hook para scroll suave automático (pasa el estado unlocked)
+  useSmoothScroll(unlocked);
 
   const isDataLoading = checksLoading || bonusLoading;
 

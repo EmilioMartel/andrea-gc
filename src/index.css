@@ -16,6 +16,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Mejoras específicas para macOS */
+@media (pointer: fine) {
+  /* Solo en dispositivos con trackpad/mouse preciso (principalmente macOS) */
+  body {
+    overscroll-behavior: none; /* Evitar bounce en safari */
+  }
+  
+  /* Scroll más suave en webkit browsers (Safari, Chrome en Mac) */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Scroll snap solo para las secciones específicas */
 .snap-y {
   scroll-snap-type: y mandatory;
