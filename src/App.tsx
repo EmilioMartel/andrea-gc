@@ -739,14 +739,14 @@ const TodayPlan: React.FC<{
     });
   }, [allPlanItems, bonusItems, checks, showAllPlans, todayPlan]);
 
-  const handleDragStart = (e: React.DragEvent, text: string, source: 'plan' | 'bonus') => {
+  const handleDragStart = (e: React.DragEvent, text: string, source: 'plan' | 'bonus', fullId?: string) => {
     setDraggedItem({ text, source });
     e.dataTransfer.effectAllowed = "copy";
-    e.dataTransfer.setData('text/plain', JSON.stringify({ text, source }));
+    e.dataTransfer.setData('text/plain', JSON.stringify({ text, source, fullId }));
   };
 
-  const handleItemClick = (text: string, source: 'plan' | 'bonus') => {
-    addItemToToday(text, source);
+  const handleItemClick = (text: string, source: 'plan' | 'bonus', fullId?: string) => {
+    addItemToToday(text, source, fullId);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -764,7 +764,7 @@ const TodayPlan: React.FC<{
       if (dataStr) {
         const itemData = JSON.parse(dataStr);
         if (itemData && itemData.text && itemData.source) {
-          addItemToToday(itemData.text, itemData.source);
+          addItemToToday(itemData.text, itemData.source, itemData.fullId);
           setDraggedItem(null);
           return;
         }
@@ -781,9 +781,20 @@ const TodayPlan: React.FC<{
     setDraggedItem(null);
   };
 
-  const addItemToToday = (text: string, source: "plan" | "bonus" | "custom") => {
+  const addItemToToday = (text: string, source: "plan" | "bonus" | "custom", fullId?: string) => {
     // Crear un ID consistente con el usado en el filtro
-    const itemId = slugify(text);
+    let itemId: string;
+    
+    if (source === 'plan' && fullId) {
+      // Para planes mensuales, usar el fullId slugificado
+      itemId = slugify(fullId);
+    } else if (source === 'bonus') {
+      // Para bonus items, usar el formato bonus-{texto}
+      itemId = slugify(`bonus-${text}`);
+    } else {
+      // Para custom items y fallback, usar solo el texto
+      itemId = slugify(text);
+    }
     
     // Verificar si ya está en el plan de hoy
     const existingItem = todayPlan.find(item => item.id === itemId);
@@ -893,12 +904,12 @@ const TodayPlan: React.FC<{
                     <div
                       key={index}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, item.text, item.source)}
+                      onDragStart={(e) => handleDragStart(e, item.text, item.source, item.fullId)}
                       onDragEnd={() => {
                         // Limpiar después de un breve delay para permitir que drop se procese
                         setTimeout(() => setDraggedItem(null), 100);
                       }}
-                      onClick={() => handleItemClick(item.text, item.source)}
+                      onClick={() => handleItemClick(item.text, item.source, item.fullId)}
                       className={`p-3 rounded-lg border cursor-move hover:bg-gray-100 transition-colors touch-manipulation ${
                         isCompleted ? 'bg-green-50 border-green-200' : 'bg-gray-50'
                       }`}
