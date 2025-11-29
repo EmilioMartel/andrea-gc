@@ -17,78 +17,54 @@ import { useSyncedData } from "./useSyncedData";
  *  - GOOGLE_DOC_URL (opcional, si quieres enlazar tu doc)
  */
 
-const TITLE = "Operación: Planazos Épicos 🚀";
-const PASSWORD_HINT = "Toc toc, ¿quién es?"; // <- Pista que se muestra
-const PASSWORD_PHRASE = "ding dong"; // <- Contraseña real para desbloquear
-const GOOGLE_DOC_URL = "https://docs.google.com/document/d/15kjoUrcE2n28rG1LSsyCquiviLovyC1uopzlBoPYj34/edit?usp=sharing"; // Pega aquí tu enlace de Google Docs si lo tienes
+const TITLE = "Andrea GC";
+const PASSWORD_HINT = "¿Qué fruta tropical amarilla es famosa en Canarias?"; // <- Pista que se muestra
+const PASSWORD_PHRASE = "platano"; // <- Contraseña real para desbloquear
+const GOOGLE_DOC_URL = ""; // Pega aquí tu enlace de Google Docs si lo tienes
 
-// ---------- Datos del plan (2 meses + extras) ----------
+// ---------- Datos del plan (1 mes de aventuras en Gran Canaria) ----------
 const PLAN_DATA: {
   month: string;
   weeks: { title: string; items: string[] }[];
 }[] = [
   {
-    month: "📅 Mes 1",
+    month: "🏝️ Tu mes en Gran Canaria",
     weeks: [
       {
-        title: "Semana 1 — Relajados y cercanos",
+        title: "Semana 1 — Bienvenida a la isla",
         items: [
-          "Atardecer en Las Canteras con helado",
-          "Paseo en guagua y bajarse en un sitio random",
+          "Tour por Vegueta (Casco Histórico) y visita a la Catedral de Santa Ana",
+          "Tarde en la Playa de Las Canteras - el mejor atardecer de la ciudad",
+          "Cena en la Calle Triana - zona comercial y de tapas",
+          "Mercadillo de Vegueta (domingo) - artesanía local",
         ],
       },
       {
-        title: "Semana 2 — Risas y juego",
+        title: "Semana 2 — Norte de la isla",
         items: [
-          "Karaoke casero con YouTube y picoteo",
-          "Mercadillo de Teror con reto de 'lo más raro'",
+          "Jardín Botánico Canario Viera y Clavijo",
+          "Pueblo de Teror y su Basílica - probar chorizo de Teror",
+          "Charcos de Azuaje o Los Berrazales en Agaete",
+          "Puesta de sol en el Puerto de Agaete",
         ],
       },
       {
-        title: "Semana 3 — Aventura ligera",
+        title: "Semana 3 — Montañas y vistas",
         items: [
-          "Excursión corta a un charco natural en: Agaete / Barranco de los Cernícalos / Azuaje",
-          "Ruta de graffitis urbanos y fotos improvisadas",
+          "Roque Nublo al amanecer - ruta de senderismo icónica",
+          "Pueblos de montaña: Tejeda y Artenara (cuevas habitadas)",
+          "Mirador del Pico de las Nieves - punto más alto de la isla",
+          "Cena en un restaurante con vistas en Tejeda",
         ],
       },
       {
-        title: "Semana 4 — Momentos confi",
+        title: "Semana 4 — Sur y despedida",
         items: [
-          "Cine en casa con maratón de pelis y snacks caseros — Peli? Star Wars, sé que te gusta mucho",
-          "Subida nocturna al Pico de Bandama con mantita para ver 'las luces mágicas'",
-        ],
-      },
-    ],
-  },
-  {
-    month: "📅 Mes 2",
-    weeks: [
-      {
-        title: "Semana 5 — Aventura compartida",
-        items: [
-          "Sendero al Roque Nublo al amanecer",
-          "Paddle surf o kayak en Mogán",
-        ],
-      },
-      {
-        title: "Semana 6 — Originales y creativos",
-        items: [
-          "Cocinar juntos algo canario (papas arrugadas, gofio, etc.)",
-          "Reto de turistas: gorra, mapa y fotos ridículas en Vegueta",
-        ],
-      },
-      {
-        title: "Semana 7 — Conexión estelar",
-        items: [
-          "Noche de estrellas en Artenara con café/termo",
-          "Sesión de fotos 'profesional'. Influencer time.",
-        ],
-      },
-      {
-        title: "Semana 8 — El broche final",
-        items: [
-          "Tour de playas secretas en coche un día entero",
-          "Crear una playlist juntos y dar una vuelta en coche escuchándola",
+          "Dunas de Maspalomas y Playa del Inglés",
+          "Puerto de Mogán - 'La pequeña Venecia'",
+          "Kayak o paddle surf en Mogán",
+          "Tarde en alguna playa escondida: Güi Güi, Amadores o Anfi del Mar",
+          "Cena de despedida con comida canaria típica",
         ],
       },
     ],
@@ -96,11 +72,16 @@ const PLAN_DATA: {
 ];
 
 const BONUS_DEFAULT = [
-  "Viaje juntos a otra isla o ciudad ✈️",
-  "Ir a un festival de música 🎶",
-  "Visitar un museo o exposición 🖼️",
-  "Escapada de fin de semana en apartamentos rurales o cerca de la playa 🏡",
-  "Ir a ver un partido de la UD Las Palmas",
+  "Visita a Cueva Pintada de Gáldar - sitio arqueológico prehispánico 🏛️",
+  "Ruta de los Cenobios de Valerón - cuevas graneros aborígenes 🗿",
+  "Noche de estrellas en Roque Nublo o Artenara ✨",
+  "Probar bienmesabe, frangollo y otros postres canarios 🍰",
+  "Museo Casa de Colón - historia de Colón en Canarias 🚢",
+  "Ruta en bici por el Paseo de Las Canteras 🚴‍♀️",
+  "Mercado del Puerto - tapas y ambiente local �",
+  "Barranco de Guayadeque - cuevas restaurante 🍽️",
+  "Acuario Poema del Mar - vida marina 🐠",
+  "Visitar una bodega y probar vinos canarios 🍷",
 ];
 
 // ---------- Helpers ----------
@@ -595,7 +576,7 @@ const SecretPlan: React.FC<{
           <div>
             <h3 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold">{TITLE}</h3>
             <p className="mt-2 text-gray-600 text-sm sm:text-base">
-              2 meses de planes pensados para disfrutar, reír y crear recuerdos. Marca lo que vayan cumpliendo ✨
+              Un mes para descubrir Gran Canaria: playas, montañas, cultura y gastronomía. ¡Marca lo que vayas explorando! ✨
             </p>
             <p className="mt-1 text-indigo-600 text-xs sm:text-sm">
               💫 Los datos se sincronizan automáticamente entre dispositivos cuando estás conectado
@@ -693,7 +674,7 @@ const SecretPlan: React.FC<{
                 value={newBonus}
                 onChange={(e) => setNewBonus(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && addBonus()}
-                placeholder="Añadir nuevo plan extra (p.ej. 'Escapada a Lanzarote')"
+                placeholder="Añadir nuevo plan extra (p.ej. 'Visita a Tenerife en ferry')"
                 className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-4 focus:ring-indigo-200 text-sm sm:text-base touch-manipulation"
               />
               <button 
@@ -1044,25 +1025,25 @@ export default function App() {
   const q = useMemo(
     () => [
       {
-        title: "¿Team atardecer en Las Canteras o amanecer en el Nublo?",
-        subtitle: "Pregunta seria antes de seguir 👀",
+        title: "¿Prefieres playa o montaña?",
+        subtitle: "Gran Canaria tiene ambos 🏝️⛰️",
       },
       {
-        title: "Hoy, ¿mar o montaña?",
-        bullets: ["Charco en Agaete", "Paseo por Vegueta", "Pico de Bandama", "Las Canteras y helado"],
+        title: "¿Qué tipo de actividad te llama más?",
+        bullets: ["Senderismo al Roque Nublo", "Playa de Las Canteras", "Tour por Vegueta", "Kayak en Mogán"],
       },
       {
-        title: "¿Plan tranquilo o pequeña aventura?",
-        bullets: ["Karaoke casero", "Ruta de graffitis + fotos", "Paddle en Mogán", "Cine y mantita"],
+        title: "¿Aventura o relajación?",
+        bullets: ["Charco natural", "Mirador de las Nieves", "Tarde de tapas", "Dunas de Maspalomas"],
       },
       {
-        title: "¿Dulce o salado?",
-        subtitle: "(Esto puede decidir el snack de la misión)",
-        bullets: ["Churros con chocolate", "Bocata de pata asada", "Gofio + plátano", "Queso de flor"],
+        title: "¿Qué comida canaria te gustaría probar?",
+        subtitle: "¡Importante para planear! 🍽️",
+        bullets: ["Papas arrugadas con mojo", "Queso de flor", "Chorizo de Teror", "Bienmesabe"],
       },
       {
-        title: "¿Listos para desbloquear el plan secreto?",
-        subtitle: "Sigue bajando… la frase te espera al final.",
+        title: "¿Lista para descubrir el plan completo?",
+        subtitle: "Resuelve el acertijo al final para desbloquearlo 🔓",
       },
     ],
     []
@@ -1131,7 +1112,7 @@ export default function App() {
             transition={{ duration: 0.9, delay: 0.1 }}
             className="mt-4 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl max-w-2xl leading-relaxed px-4"
           >
-            Responde con el scroll. Si llegas al final, encontrarás la frase secreta para desbloquear nuestro plan.
+            Tu guía para descubrir lo mejor de Gran Canaria en un mes. Responde con el scroll y desbloquea todas las actividades.
           </motion.p>
           <motion.div
             initial={{ opacity: 0 }}
@@ -1143,13 +1124,13 @@ export default function App() {
               href="#question-0" 
               className="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 text-white shadow hover:bg-indigo-700 transition-all hover:scale-105 text-sm sm:text-base touch-manipulation font-semibold"
             >
-              🚀 Comenzar la misión
+              🌴 Comenzar la aventura
             </a>
             <a 
               href="#password" 
               className="w-full sm:w-auto px-5 py-3 rounded-xl border bg-white/80 hover:bg-white shadow text-sm sm:text-base touch-manipulation"
             >
-              Ir a la contraseña
+              Ir al acertijo
             </a>
           </motion.div>
           <ScrollIndicator nextSection="#question-0" />
@@ -1170,9 +1151,9 @@ export default function App() {
         {/* Gate */}
         <section id="gate" className="min-h-[70vh] snap-start flex items-center justify-center px-4 sm:px-6 relative">
           <div className="max-w-3xl text-center">
-            <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight">Has llegado muy lejos 💫</h2>
+            <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight">¡Ya casi estás! 🌟</h2>
             <p className="mt-4 text-gray-600 text-base sm:text-lg px-2">
-              Aquí está la frase que lo desbloquea todo. Léela con atención.
+              Resuelve el acertijo para descubrir todas las actividades planificadas.
             </p>
           </div>
           <ScrollIndicator nextSection="#password" />
@@ -1205,7 +1186,7 @@ export default function App() {
       {/* Footer */}
       <footer className="py-10 text-center text-sm text-gray-500">
         <p>
-          Hecho con cariño 💖. Si esto te gustó, prometo asai en Las Canteras. 🍨
+          Hecho con cariño para que disfrutes Gran Canaria al máximo 💛. Si te gustó açaí de regalo.
         </p>
       </footer>
     </div>
