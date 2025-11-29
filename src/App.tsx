@@ -19,7 +19,7 @@ import { useSyncedData } from "./useSyncedData";
 
 const TITLE = "Conocer Gran Canaria 🌴";
 const PASSWORD_HINT = "¿Qué fruta tropical amarilla es famosa en Canarias?"; // <- Pista que se muestra
-const PASSWORD_PHRASE = "platano"; // <- Contraseña real para desbloquear
+const PASSWORD_PHRASE = "guineo"; // <- Contraseña real para desbloquear
 const GOOGLE_DOC_URL = ""; // Pega aquí tu enlace de Google Docs si lo tienes
 
 // ---------- Datos del plan (1 mes de aventuras en Gran Canaria) ----------
