@@ -17,7 +17,7 @@ import { useSyncedData } from "./useSyncedData";
  *  - GOOGLE_DOC_URL (opcional, si quieres enlazar tu doc)
  */
 
-const TITLE = "Andrea GC";
+const TITLE = "Conocer Gran Canaria 🌴";
 const PASSWORD_HINT = "¿Qué fruta tropical amarilla es famosa en Canarias?"; // <- Pista que se muestra
 const PASSWORD_PHRASE = "platano"; // <- Contraseña real para desbloquear
 const GOOGLE_DOC_URL = ""; // Pega aquí tu enlace de Google Docs si lo tienes
@@ -1186,7 +1186,7 @@ export default function App() {
       {/* Footer */}
       <footer className="py-10 text-center text-sm text-gray-500">
         <p>
-          Hecho con cariño para que disfrutes Gran Canaria al máximo 💛. Si te gustó açaí de regalo.
+           Hecho con cariño para que disfrutes Gran Canaria al máximo 💛. Si te gustó açaí de regalo.
         </p>
       </footer>
     </div>
